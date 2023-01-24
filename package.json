@@ -1,5 +1,5 @@
 {
-  "name": "@example/with-mdx",
+  "name": "i-dream-of-theming",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -11,9 +11,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^0.14.0",
-    "@astrojs/preact": "^1.2.0",
-    "astro": "^1.9.0",
-    "preact": "^10.6.5"
+    "astro": "^2.0.0",
+    "preact": "^10.6.5",
+    "@astrojs/preact": "^2.0.0",
+    "@astrojs/mdx": "^0.15.0"
   }
 }
