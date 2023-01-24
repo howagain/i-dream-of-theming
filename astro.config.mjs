@@ -4,5 +4,6 @@ import preact from '@astrojs/preact';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [mdx(), preact()],
+  site: "https://www.idreamoftheming.com/",
+  integrations: [mdx(), preact()],
 });
