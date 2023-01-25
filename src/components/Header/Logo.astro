@@ -1,0 +1,14 @@
+---
+type Props = {
+  size: number;
+};
+---
+
+<div class="logo" style="max-width: 100px;"><img src="/css-variable-logo.png" /></div>
+
+<style>
+	.logo {
+		width: calc(var(--size) * 1px);
+		height: calc(var(--size) * 1px);
+	}
+</style>
