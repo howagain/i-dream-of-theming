@@ -18,8 +18,6 @@ When the browser starts parsing a CSS file, it converts the file into a series o
 ![CSSOM Tree](/CSSOM-tree.jpeg)
 [Converting CSS to the CSSOM](https://www.youtube.com/watch?v=-CATiyw2-Ns)
 
-TODO: Insert Codepen to show the below especially overwriting css is possible
-
 The CSSOM tree is built by passing down properties from parent nodes to child nodes. These are inherited or computed properties. The browser also checks media queries and will only add a rule set to the CSSOM tree if it applies to the current viewport. Futhermore, it will ignore any rules that are not valid.
 
 Most importantly, **if the browser finds a duplicate selector, it will overwrite the previous rule set with the new one.** This is why CSS is render blocking, because the browser has to wait for the CSSOM to be complete before it can understand how to paint an element. It's also why **CSS variables cannot be evaluated until the CSSOM is complete** and leads to some of the quirks that we'll talk about next.
