@@ -250,11 +250,7 @@ TODO: Insert Codepen to show the below especially overwriting css is possible
 
 The CSSOM tree is built by passing down properties from parent nodes to child nodes. These are inherited or computed properties. The browser also checks media queries and will only add a rule set to the CSSOM tree if it applies to the current viewport. Futhermore, it will ignore any rules that are not valid.
 
-Most importantly, **if the browser finds a duplicate selector, it will overwrite the previous rule set with the new one.** This is why CSS is render blocking, because the browser has to wait for the CSSOM to be complete before it can understand how to paint an element. It's also why **CSS variables cannot be evaluated until the CSSOM is complete** and leads to some of the quirks that we'll talk about in a second.
-
-### How is the page painted?
-
-Once the CSSOM is complete, the browser then continues traversing the DOM, and for each element, it looks for the matching rule set in the CSSOM tree. When a match is found, the browser applies the properties to the element. If the element has a parent element, the browser also checks if the parent element has any inherited properties that should be applied to the element.
+Most importantly, **if the browser finds a duplicate selector, it will overwrite the previous rule set with the new one.** This is why CSS is render blocking, because the browser has to wait for the CSSOM to be complete before it can understand how to paint an element. It's also why **CSS variables cannot be evaluated until the CSSOM is complete** and leads to some of the quirks that we'll talk about next.
 
 ### How are CSS Variables Evaluated?
 
