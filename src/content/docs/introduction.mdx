@@ -1,5 +1,5 @@
 ```css
-/* Welcome! We're about to have fun */
+/* This is an example of CSS variables */
 :root {
   --css-variable: hsl(0, 0%, 100%); /* Declare a value */
   color: var(--css-variable); /* Use a value */
@@ -8,7 +8,88 @@
 
 Today, we’ll talk about theming using **CSS variables** (a.k.a CSS custom properties) and how to use them to build beautiful and easy to manage sites.
 
-By the end I hope you’ll have the knowledge of **how to build a dark theme** for every app you work on in the future.
+By the end I hope you’ll have the knowledge of **how to build a dark theme that you can easily toggle on an off** for every app you work on in the future.
+
+## What are CSS variables?
+
+CSS variables are a way to store values in CSS that can be used in other CSS properties.
+
+They are declared with `--` and used with `var()`. They are scoped to the element they are declared on.
+
+```css
+/* The root element is the html element or the shadowDOM root*/
+:root {
+  /* -- is required */
+  --blue: #209ffb;
+}
+```
+
+```css
+.button {
+  /* var is required */
+  background: var(--blue);
+}
+```
+
+### You can define fallbacks with `var()`.
+
+```css
+:root {
+  /* if --primary isn't defined it will evaluate everything after the comma, so `var(--secondary, blue)``, Then if --secondary isn't defined it will evaluate white, which is valid and it will use */
+  --background: var(--primary, var(--secondary, white));
+}
+```
+
+_Note: If the first value is undefined it will use everything after the comma of the second. So in `var(--yellow, red, blue)` if `--yellow is undefined, it will return `red, blue`: (See MDN)[https://developer.mozilla.org/en-US/docs/Web/CSS/var]_
+
+### You can use them anywhere you use CSS
+TODO: Put into Codepen
+
+#### In inline styles
+
+```html
+<div style="background: var(--blue);"></div>
+```
+
+#### In media queries
+
+```css
+@media (max-width: 500px) {
+  .button {
+    --blue: #209ffb;
+    background: var(--blue);
+  }
+}
+```
+
+#### In pseudo classes
+
+```css
+.button:hover {
+  --blue: #209ffb;
+  background: var(--blue);
+}
+```
+
+#### As partial values in compound values
+
+```css
+.button {
+  --blue: #209ffb;
+  background: linear-gradient(var(--blue), #fff);
+}
+```
+
+#### Even in mathmatical expressions
+
+```css
+.button {
+  --padding: 10;
+  padding: calc(var(--padding) * 2px);
+  /* Note that calc(var(--pading)px * 2) would not work as a trailing space is added and (10 px * 2) != (10 * 2px) */
+  /* Also padding: var(--padding)px is invalid for the same trailing space reason */
+}
+```
 
 ## Why use CSS variables
 
@@ -18,7 +99,7 @@ By the end I hope you’ll have the knowledge of **how to build a dark theme** f
 - They are **inheritable** and can be used to build a theme.
 - They are **scoped** and can be used to build a component.
 - They are **responsive** and can be used in media queries.
-- They are **pieceing** of the shaodwDOM easisly controlling web components
+- They are **pieceing** of the shadowDOM so you can style web components
 
 ### The power of CSS made dynamic
 
@@ -35,9 +116,11 @@ So CSS is powerful, but it’s also hard to maintain.
 But with CSS variables, we can apply a single class and completely change the look and feel of our site.
 
 ## What will we learn?
+
 My goal is that your css will evolve from this:
 
 #### No Variables
+
 ```css
 button {
   background-color: #1e90ff;
@@ -45,16 +128,16 @@ button {
 ```
 
 #### Basic
-```css
-```css
-:root {
+
+````css
+```css :root {
   --blue: #1e90ff;
 }
 
 button {
   background-color: var(--blue);
 }
-```
+````
 
 #### Intermediate
 
@@ -153,31 +236,273 @@ To understand how CSS variables work, their power, and their limitations, it's i
 
 ### CSS Object Model (CSSOM)
 
-While rendering the page the browser parses the HTML and constructs a tree-like structured called the Document Object Model (DOM). As it encounters a stylesheet it shoots off a request to download it and then parses it.
+![CSSOM and the DOM](public/CSSOM-and-DOM.avif)
+[Constructing the Object Model](https://web.dev/critical-rendering-path-constructing-the-object-model/)
 
-When the browser starts parsing the CSS, it creates a set of rule sets, each one representing a group of selectors and properties. These rule sets are organized in a **tree-like structure, called the CSS Object Model (CSSOM), where each node represents a selector and each leaf node represents a property**. It is a parallel and analoguous data structure to the Document Object Model (DOM).
+When the browser starts parsing a CSS file, it converts the file into a series of tokens. **These tokens, which include selectors, properties, and values, are then organized into a tree-like structure called the CSS Object Model (CSSOM)**. The CSSOM is a parallel and analogous data structure to the Document Object Model (DOM) and is used to match elements in the DOM with the corresponding styles and apply them to the elements.
 
-When the browswer is constructing this tree, it will pass down properties from the parent nodes to the child nodes. These are computed or inherited properties. 
+### How are properties assigned in the CSSOM?
 
-The browser is also smart with media queries is will first check if the rule set applies to the current viewport. If it does, it will add the rule set to the CSSOM tree. If not, it will skip it. Additionally, the browser will ignore any rules that are not valid.
+![CSSOM Tree](public/CSSOM-tree.jpeg)
+[Converting CSS to the CSSOM](https://www.youtube.com/watch?v=-CATiyw2-Ns)
 
-**Since CSS can be overwritten by later rules, if it finds a duplicate selector, it will overwrite the previous rule set with the new one.** This overwriting is why CSS is render blocking and why CSS variables are have different behavior from what you would expect in javascript. Additionally, 
+TODO: Insert Codepen to show the below especially overwriting css is possible
 
-After the full CSSOM is complete, browser then continues traversing the DOM, and for each element, it looks for the matching rule set in the CSSOM tree. When a match is found, the browser applies the properties to the element. If the element has a parent element, the browser also checks if the parent element has any inherited properties that should be applied to the element.
+The CSSOM tree is built by passing down properties from parent nodes to child nodes. These are inherited or computed properties. The browser also checks media queries and will only add a rule set to the CSSOM tree if it applies to the current viewport. Futhermore, it will ignore any rules that are not valid.
 
-So, the browser uses a two-pass algorithm, where it first constructs the CSSOM tree and then matches the elements in the DOM with the rule sets in the CSSOM tree. The first pass is the construction of the CSSOM tree and the second pass is the matching and applying of the styles.
+Most importantly, **if the browser finds a duplicate selector, it will overwrite the previous rule set with the new one.** This is why CSS is render blocking, because the browser has to wait for the CSSOM to be complete before it can understand how to paint an element. It's also why **CSS variables cannot be evaluated until the CSSOM is complete** and leads to some of the quirks that we'll talk about in a second.
 
-In other words, the browser first creates a map of all the CSS styles, and then it uses that map to apply the styles to the elements in the HTML. The browser uses inheritance to pass properties down to the selector nodes, then it traverses the tree to look for a match when it finds a node in the HTML.
+### How is the page painted?
 
-#### What about CSS variables?
+Once the CSSOM is complete, the browser then continues traversing the DOM, and for each element, it looks for the matching rule set in the CSSOM tree. When a match is found, the browser applies the properties to the element. If the element has a parent element, the browser also checks if the parent element has any inherited properties that should be applied to the element.
 
-Since CSS variables can be redefined by later rules, the browser does not know the local scope when it is constructing the style sheet. Therefore it cannot do things that you might be used to in javascript such as check if the variable is undefined, converting it, or doing any other type of manipulation. Instead, it's based on this inheritance model. 
+### How are CSS Variables Evaluated?
 
-CSS nodes have computed properties that are inherited from the parent node. So when it encounters a CSS variable the browser 
+CSS variables are inherited by checking up the scope in the CSSOM. Since CSS can be redefined by later rules, **the browser does not know the value of CSS variables them when it is constructing the CSSOM. Therefore, they cannot be used in a way that would cause a recalculation the CSSOM**. Remember invalid rules are ignored by the browser. So if you try to use a CSS variable and it is invalid, the browser will default to it's initial styles.
+
+## CSS Varaible Gotchas
+
+Since variables only have a value after the CSSOM parsing is complete, there are some things that you can't do with them. There is a (proposal)[https://drafts.csswg.org/css-env-1/] to add in `env()` which would be similar to `var()` but not allow redefining the variable. This would allow for some of the use cases that we'll talk about below, but this is still in the draft stage.
+
+### You can’t use them to define a selector
+
+```css
+:root {
+  --my-property: color;
+  --my-value: blue;
+}
+
+.my-element {
+  /* this will not work, as --my-property is not a valid property */
+  var(--my-property): var(--my-value);
+}
+```
+
+This is because the browser doesn't know the value of the variable until it has parsed the entire CSSOM.
+
+## You can't use them to define a media query
+
+```css
+:root {
+  --mobile-breakpoint: 642px;
+}
+
+@media (max-width: var(--mobile-breakpoint)) {
+}
+```
+
+[CSS native variables not working in media queries](https://stackoverflow.com/questions/40722882/css-native-variables-not-working-in-media-queries)
+
+### You can't have a variable defined refrencing itself
+
+```css
+:root {
+  --my-property: red;
+}
+
+button {
+  /* This is invalid and would result in the browser using it's default styles */
+  --my-property: var(--another-property, var(--my-property));
+}
+```
+
+While `const myProperty = anotherProperty || myProperty;` is valid in JavaScript, the same pattern is not valid in CSS. Instead, if you wanted this fallback chain, you would want to define it like `--my-property: var(--another-property, red);`
+
+## Building a Dark Theme with CSS variables
+
+<p class="codepen" data-height="300" data-default-tab="css,result" data-slug-hash="YzjaBvB" data-editable="true" data-user="howagain" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+  <span>See the Pen <a href="https://codepen.io/howagain/pen/YzjaBvB">
+  Simple Toggle Switch</a> by howagain (<a href="https://codepen.io/howagain">@howagain</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script client:visible async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
 
 
 
 
+### Naming CSS Variables
+
+The hardest part will be an ever expanding set of variable names.
+
+The first step that you might do with CSS is look at your style sheet and assign obvious values.
+For example:
+
+```css
+:root {
+  --white: #fff;
+}
+```
+
+then you'd use them like this
+
+    ```css
+    .my-element {
+      background: var(--white);
+    }
+    ```
+
+However a better naming scheme would hint at the use of the variable for easier theming by other developers. For example:
+
+```css
+:root {
+  --background-color: #fff;
+}
+```
+
+This gives other developers and your future self hints at what the variable should be used for and what will happen if it changes. This will help with accessibility edge cases where we need more granular control (such as red primary with error messages) that we'll talk about more later. Still for more complex values we may want to give them a name too. **So we want to define two levels of colors: one for the color values, the second for their use.** We refer to these as **option tokens** for the values and **decision tokens** for the use. For example if you're defining the text-color use a name like `--button-text-color` then for form elements define `--form-text-color`. This will help you keep your styles consistent and predictable.
+
+```css
+:root {
+  --white: #fff; /* option token */
+  --background-color: var(--white); /* decision token */
+}
+```
+
+Now we can build our dark theme by just reassigning the color values for primary.
+
+```css
+.dark-theme {
+  --black: #000;
+  --background-color: var(--black);
+}
+```
+Now by simply applying the `.dark-theme` class to our body, we can change the theme of our site. Writing your styles in this manner limits their side effects and leads to a predicable system.
+
+
+### Theming with CSS Variables
+So far we have been using hex values for our colors. This is fine for simple sites, but for more complex sites we may want to use a color palette. This will allow us to have a consistent color scheme across our site. We can do this by defining a set of colors and then using them in our styles. 
+
+This can require computing relative colors, such as a lighter or darker version of a color. HSL
+
+```css
+
+For example:
+
+```css
+ :root{
+
+ }
+
+```
+
+
+### Scaling your design system to large applications
+
+At some point you'll likely want to define variables for every part of your app that needs to be reused. Include following categories:
+- Text (color, font, size, weight, line-height, letter-spacing)
+- Forms (border, border-radius, background, color, font, size, weight, line-height, letter-spacing)
+- Interactive elements (buttons, links, etc)
+- Icons
+- Shadows
+- Borders
+- Radius
+- Backgrounds 
+- Z-Index
+- Grid (spacing, sizing, breakpoints)
+
+This many variables can quickly grow out of control. To help with this you may want to limit the interface to parts that are logically connected and then use selectors to redefine scoped variable in edge cases. For example:
+
+```css
+  :root {
+    --primary-color: #000;
+    --error-color: #f00;
+  }
+
+  .red-theme: {
+    --primary-color: #f55;
+  }
+  
+  .red-theme .error {
+    background-color: black;
+  }
+
+  .element {
+    color: var(--primary-color);
+  }
+
+  .error {
+    color: var(--error-color);
+  }
+
+  ```
+
+This approach requires manual work to solve challenging edge cases, but it makes desiging new themes easy to understand. If you want a more automated approach we'll need to use JavaScript to solve this problem.
+
+### Using JavaScript to build a theme
+
+The first step is to define a set of variables that we want to use. We'll use the same categories as before, but we'll also add a few more.
+
+```js
+const variables = {
+  text: {
+    color: '#000',
+    font: 'sans-serif',
+    size: '16px',
+    weight: '400',
+    lineHeight: '1.5',
+    letterSpacing: '0',
+  },
+  form: {
+    border: '1px solid #000',
+    borderRadius: '4px',
+    background: '#fff',
+    color: '#000',
+    font: 'sans-serif',
+    size: '16px',
+    weight: '400',
+    lineHeight: '1.5',
+    letterSpacing: '0',
+  },
+  interactive: {
+    button: {
+      background: '#000',
+      color: '#fff',
+      font: 'sans-serif',
+      size: '16px',
+      weight: '400',
+      lineHeight: '1.5',
+      letterSpacing: '0',
+    },
+    link: {
+      color: '#000',
+      font: 'sans-serif',
+      size: '16px',
+      weight: '400',
+      lineHeight: '1.5',
+      letterSpacing: '0',
+    },
+  },
+  icon: {
+    color: '#000',
+  },
+  shadow: {
+    color: '#000',
+  },
+  border: {
+    color: '#000',
+  },
+  radius: {
+    size: '4px',
+  },
+  background: {
+    color: '#fff',
+  },
+  zIndex: {
+    value: '1',
+  },
+  grid: {
+    spacing: '16px',
+    sizing: '12px',
+    breakpoints: {
+      mobile: '768px',
+      tablet: '1024px',
+      desktop: '1200px',
+    },
+  },
+};
+```
+
+The ideal system would be able to automatically reconcile colors and use 
 
 
 
@@ -221,7 +546,7 @@ CSS nodes have computed properties that are inherited from the parent node. So w
     - Clutters up your logic, especially if you don’t have a solution for prop drilling.
   - Use something like material-UI’s theming system
     - Context provider which a theme prop, but then tying into this requires css in js, which isn’t evil
-    [Theming - Material UI](https://mui.com/material-ui/customization/theming/)
+      [Theming - Material UI](https://mui.com/material-ui/customization/theming/)
   - But none pierce the shadow dom
 
 Showroom
@@ -267,13 +592,16 @@ Showroom
   - Visual editing of elements that snap to a customizable grid and use smart efficient css with responsive design
   -
 
+
+ If you're building a design system for mutiplatform applicationtion, you may want to consider using a tool like [Style Dictionary](https://amzn.github.io/style-dictionary/#/) to help you manage your variables.
+
 # I Dream of Theming
 
 Ever night millions of people around the world blind themselves when they visit a website without a dark theme. But you can help by learning how to use css custom properties to build easy to manage themes. In doing so you can save not only your customers corneas but also the planet.
 
-In the past, if you wanted to do a dark theme, you’d have to go into every element of your website, open a color picker, and tweak it until it looked how you wanted it to.
+In the past, if you wanted to do a dark theme, you'd have to go into every element of your website, open a color picker, and tweak it until it looked how you wanted it to.
 
-The ideal of this would be a simple toggle switch that just says “oh this is your light color site” and here’s the dark one.
+The ideal of this would be a simple toggle switch that just says “oh this is your light color site” and here's the dark one.
 
 Sites have added that today but how can they accomplish this. Well here are the docs for Astro, notice their toggle switch. How does it work?
 
@@ -281,79 +609,6 @@ Their source code looks like this?
 
 With one class at the top level they can influence all of the colors. More than that if you look at how they do it, they change these special properties, called css properties.
 
-# What are CSS custom properties?
-
-Css custom properties are a fully browser supported css spec that allows you to have runtime, computed properties.
-
-You call them like this:
-
-```css
-.button {
-  --blue: #209ffb;
-  background: var(--blue);
-}
-```
-
-You can use them anywhere that css is supported
-
-- in-line styles
-- Css-in-js
-- Even partial values
-
-# Gotchas (move these to the end of the how to use)
-
-## Sizes need to be self contained
-
-## You can’t use them for media queries
-
-[CSS native variables not working in media queries](https://stackoverflow.com/questions/40722882/css-native-variables-not-working-in-media-queries)
-
-```css
-:root {
-  --mobile-breakpoint: 642px;
-}
-
-@media (max-width: var(--mobile-breakpoint)) {
-}
-```
-
-> “how is this NOT a property value ?? It's max-width's property value! It should totally work!” -user9645
-
-In general this is because media queries are used to determine if a browser should evaluate a style at all (it is expensive) and when the [CSSOM](https://web.dev/critical-rendering-path-constructing-the-object-model/) is being constructed the browser doesn’t have access to these computed properties as their value depends on where they’re located in the dom. It’s getters vs setters. In the media query we’d have to get width of the document (which is a current proposal) to decide if it should be evaluated, vs in a normal property where it is being set by the parents in the CSSOM.
-
-### But you can use them in media queries!
-
-```css
-:root {
-  --main-color: blue;
-}
-
-@media (max-width: 600px) {
-  :root {
-    --main-color: red;
-  }
-}
-
-.my-element {
-  color: var(--main-color);
-}
-```
-
-## You can’t use them to declare properties, only property values
-
-```css
-:root {
-  --my-property: color;
-  --my-value: blue;
-}
-
-.my-element {
-  /* this will not work, as --my-property is not a valid property */
-  var(--my-property): var(--my-value);
-}
-```
-
-Be careful of circular reference, it will default to it’s initial property
 
 # So how do I use them?
 
@@ -421,5 +676,5 @@ What are some of the future things to look out for in theming?
   - Relative colors
   -
   - Color-contrast -
-  [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
+    [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
   - LCH (and labLCH)
