@@ -43,6 +43,7 @@ They are declared with `--` and used with `var()`. They are scoped to the elemen
 _Note: If the first value is undefined it will use everything after the comma of the second. So in `var(--yellow, red, blue)` if `--yellow is undefined, it will return `red, blue`: (See MDN)[https://developer.mozilla.org/en-US/docs/Web/CSS/var]_
 
 ### You can use them anywhere you use CSS
+
 TODO: Put into Codepen
 
 #### In inline styles
@@ -236,14 +237,14 @@ To understand how CSS variables work, their power, and their limitations, it's i
 
 ### CSS Object Model (CSSOM)
 
-![CSSOM and the DOM](public/CSSOM-and-DOM.avif)
+![CSSOM and the DOM](/CSSOM-and-DOM.avif)
 [Constructing the Object Model](https://web.dev/critical-rendering-path-constructing-the-object-model/)
 
 When the browser starts parsing a CSS file, it converts the file into a series of tokens. **These tokens, which include selectors, properties, and values, are then organized into a tree-like structure called the CSS Object Model (CSSOM)**. The CSSOM is a parallel and analogous data structure to the Document Object Model (DOM) and is used to match elements in the DOM with the corresponding styles and apply them to the elements.
 
 ### How are properties assigned in the CSSOM?
 
-![CSSOM Tree](public/CSSOM-tree.jpeg)
+![CSSOM Tree](/CSSOM-tree.jpeg)
 [Converting CSS to the CSSOM](https://www.youtube.com/watch?v=-CATiyw2-Ns)
 
 TODO: Insert Codepen to show the below especially overwriting css is possible
@@ -304,19 +305,8 @@ button {
 
 While `const myProperty = anotherProperty || myProperty;` is valid in JavaScript, the same pattern is not valid in CSS. Instead, if you wanted this fallback chain, you would want to define it like `--my-property: var(--another-property, red);`
 
-## Building a Dark Theme with CSS variables
 
-<p class="codepen" data-height="300" data-default-tab="css,result" data-slug-hash="YzjaBvB" data-editable="true" data-user="howagain" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-  <span>See the Pen <a href="https://codepen.io/howagain/pen/YzjaBvB">
-  Simple Toggle Switch</a> by howagain (<a href="https://codepen.io/howagain">@howagain</a>)
-  on <a href="https://codepen.io">CodePen</a>.</span>
-</p>
-<script client:visible async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
-
-
-
-
-### Naming CSS Variables
+## Naming CSS Variables
 
 The hardest part will be an ever expanding set of variable names.
 
@@ -325,35 +315,49 @@ For example:
 
 ```css
 :root {
-  --white: #fff;
+  --blue: #012F6C;
 }
 ```
-
-then you'd use them like this
-
-    ```css
-    .my-element {
-      background: var(--white);
-    }
-    ```
 
 However a better naming scheme would hint at the use of the variable for easier theming by other developers. For example:
 
 ```css
 :root {
-  --background-color: #fff;
+  --blue: #012F6C; /* option token */
+  --background-color: var(--blue); /* decision token */
 }
 ```
 
 This gives other developers and your future self hints at what the variable should be used for and what will happen if it changes. This will help with accessibility edge cases where we need more granular control (such as red primary with error messages) that we'll talk about more later. Still for more complex values we may want to give them a name too. **So we want to define two levels of colors: one for the color values, the second for their use.** We refer to these as **option tokens** for the values and **decision tokens** for the use. For example if you're defining the text-color use a name like `--button-text-color` then for form elements define `--form-text-color`. This will help you keep your styles consistent and predictable.
 
-```css
-:root {
-  --white: #fff; /* option token */
-  --background-color: var(--white); /* decision token */
-}
-```
+## Building a Dark Theme with CSS variables
 
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="css,result"
+  data-slug-hash="YzjaBvB"
+  data-editable="true"
+  data-user="howagain"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen{" "}
+    <a href="https://codepen.io/howagain/pen/YzjaBvB">Simple Toggle Switch</a>{" "}
+    by howagain (<a href="https://codepen.io/howagain">@howagain</a>) on{" "}
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+<script
+  client:idle
+  src="https://cpwebassets.codepen.io/assets/embed/ei.js"
+></script>
+
+### Defining the Theme
+Some key points are to use dark grey rather than pure black, and to desaturate accent colors as they can cause eye strain. For more recommendations, see [Dark Mode Design Guidelines](https://m2.material.io/design/color/dark-theme.html#properties).
+
+
+### Using CSS values to build a dark theme
 Now we can build our dark theme by just reassigning the color values for primary.
 
 ```css
@@ -362,146 +366,218 @@ Now we can build our dark theme by just reassigning the color values for primary
   --background-color: var(--black);
 }
 ```
+
 Now by simply applying the `.dark-theme` class to our body, we can change the theme of our site. Writing your styles in this manner limits their side effects and leads to a predicable system.
 
-
 ### Theming with CSS Variables
-So far we have been using hex values for our colors. This is fine for simple sites, but for more complex sites we may want to use a color palette. This will allow us to have a consistent color scheme across our site. We can do this by defining a set of colors and then using them in our styles. 
 
-This can require computing relative colors, such as a lighter or darker version of a color. HSL
+So far we have been using hex values for our colors. This is fine for simple sites, but for more complex sites we may want to use a color palette. This will allow us to have a consistent color scheme across our site. We can do this by defining a set of colors and then using them in our styles.
 
-```css
+This can require computing relative colors, such as a lighter or darker version of a color. HSL (Hue, Saturation, Lightness) is a color model that can be used for easy relative color calculations with CSS variables. By separating out the hue, satuation, and lightness, we also can independently control our color and our pallette and generate a pallette from a single color.
 
 For example:
 
 ```css
- :root{
+/* From astro's doc site */
+:root {
+  /*
+		Variables with --color-base prefix define
+		the hue, and saturation values to be used for
+		hsla colors.
 
- }
+		Example:
+		--color-base-{color}: {hue}, {saturation};
+	*/
 
+  --color-base-white: 0, 0%;
+  --color-base-black: 240, 100%;
+  --color-base-gray: 250, 14%;
+  --color-base-orange: 22, 100%;
+  --color-base-orange-dark: 22, 72%;
+
+  /*
+		Color palettes are made using --color-base 
+		variables, along with a lightness value to
+		define different variants.
+	*/
+
+  --color-gray-5: var(--color-base-gray), 5%;
+  --color-gray-10: var(--color-base-gray), 10%;
+  --color-gray-20: var(--color-base-gray), 20%;
+  --color-gray-30: var(--color-base-gray), 30%;
+  --color-gray-40: var(--color-base-gray), 40%;
+  --color-gray-50: var(--color-base-gray), 50%;
+  --color-gray-60: var(--color-base-gray), 60%;
+  --color-gray-70: var(--color-base-gray), 70%;
+  --color-gray-80: var(--color-base-gray), 80%;
+  --color-gray-90: var(--color-base-gray), 90%;
+  --color-gray-95: var(--color-base-gray), 95%;
+
+  --color-orange: var(--color-base-orange), 50%;
+}
+
+:root {
+  color-scheme: light;
+  --theme-accent: hsla(var(--color-orange), 1);
+  --theme-accent-secondary: hsl(324, 75%, 38%);
+}
+
+:root.theme-dark {
+  color-scheme: dark;
+  /* We lighten-up the orange in dark mode, to help with contrast. */
+  --color-orange: var(--color-base-orange), 60%;
+  --theme-bg: hsl(256, 27%, 19%);
+  --theme-accent: hsla(var(--color-orange), 1);
+}
 ```
 
-
-### Scaling your design system to large applications
-
-At some point you'll likely want to define variables for every part of your app that needs to be reused. Include following categories:
-- Text (color, font, size, weight, line-height, letter-spacing)
-- Forms (border, border-radius, background, color, font, size, weight, line-height, letter-spacing)
-- Interactive elements (buttons, links, etc)
-- Icons
-- Shadows
-- Borders
-- Radius
-- Backgrounds 
-- Z-Index
-- Grid (spacing, sizing, breakpoints)
-
-This many variables can quickly grow out of control. To help with this you may want to limit the interface to parts that are logically connected and then use selectors to redefine scoped variable in edge cases. For example:
+If more control is needed you can also completely sepearte the hsl values and use them directly.
 
 ```css
-  :root {
-    --primary-color: #000;
-    --error-color: #f00;
-  }
-
-  .red-theme: {
-    --primary-color: #f55;
-  }
-  
-  .red-theme .error {
-    background-color: black;
-  }
-
-  .element {
-    color: var(--primary-color);
-  }
-
-  .error {
-    color: var(--error-color);
-  }
-
-  ```
-
-This approach requires manual work to solve challenging edge cases, but it makes desiging new themes easy to understand. If you want a more automated approach we'll need to use JavaScript to solve this problem.
-
-### Using JavaScript to build a theme
-
-The first step is to define a set of variables that we want to use. We'll use the same categories as before, but we'll also add a few more.
-
-```js
-const variables = {
-  text: {
-    color: '#000',
-    font: 'sans-serif',
-    size: '16px',
-    weight: '400',
-    lineHeight: '1.5',
-    letterSpacing: '0',
-  },
-  form: {
-    border: '1px solid #000',
-    borderRadius: '4px',
-    background: '#fff',
-    color: '#000',
-    font: 'sans-serif',
-    size: '16px',
-    weight: '400',
-    lineHeight: '1.5',
-    letterSpacing: '0',
-  },
-  interactive: {
-    button: {
-      background: '#000',
-      color: '#fff',
-      font: 'sans-serif',
-      size: '16px',
-      weight: '400',
-      lineHeight: '1.5',
-      letterSpacing: '0',
-    },
-    link: {
-      color: '#000',
-      font: 'sans-serif',
-      size: '16px',
-      weight: '400',
-      lineHeight: '1.5',
-      letterSpacing: '0',
-    },
-  },
-  icon: {
-    color: '#000',
-  },
-  shadow: {
-    color: '#000',
-  },
-  border: {
-    color: '#000',
-  },
-  radius: {
-    size: '4px',
-  },
-  background: {
-    color: '#fff',
-  },
-  zIndex: {
-    value: '1',
-  },
-  grid: {
-    spacing: '16px',
-    sizing: '12px',
-    breakpoints: {
-      mobile: '768px',
-      tablet: '1024px',
-      desktop: '1200px',
-    },
-  },
-};
+:root {
+  --orange-hue: 22;
+  --orange-saturation: 100%;
+  --orange-lightness: 50%;
+  --color-orange: hsl(
+    var(--orange-hue),
+    var(--orange-saturation),
+    var(--orange-lightness)
+  );
+}
 ```
 
-The ideal system would be able to automatically reconcile colors and use 
+
+While this may seem complicated, we've gained some impressive superpowers. We can theme our whole site from a central location by just tweaking a few variables.
+
+## Using JavaScript to Control CSS Variables
+
+<p class="codepen" data-height="300" data-default-tab="css,result" data-slug-hash="PoBewpQ" data-editable="true" data-user="howagain" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+  <span>See the Pen <a href="https://codepen.io/howagain/pen/PoBewpQ">
+  Updating CSS Variables with JavaScript</a> by howagain (<a href="https://codepen.io/howagain">@howagain</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script client:idle async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+
+The true superpowers come when you combine CSS and JS together. CSS variables are great at centralized control, JS excels at dynamic control and advanced math. We can use JS to build a theme based on a set of variables. This allows us to build a theme that is accessible and predictable.
+
+### How to access CSS variables in JS
+
+This will work only if the variable is defined on the element itself. Because remember the CSSOM gives elements a calculated style. This however only accesses the literal element's style.
+
+```js
+const value = element.style.getPropertyValue("--my-var");
+```
+
+So if we define the variables in a seperate stylesheet we need to access the computed style.
+
+If we want to access the computed value of the variable, we can use (`getComputedStyle`)[https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle]:
+
+```js
+const value = getComputedStyle(element).getPropertyValue("--my-var");
+```
+
+### How to set CSS variables in JS
+
+We can set CSS variables in JS by using `setProperty`:
+
+```js
+element.style.setProperty("--my-var", "red");
+```
+
+since we usually define our CSS variables on the root element, we can use `document.documentElement` to access it.
+
+```js
+document.documentElement.style.setProperty("--my-var", "red");
+```
+
+which would actually create a new inline style that would override the value of the variable, rather than changing the value of the variable itself. But the effect will still be the same due to the higher specificity.
+
+### How to listen for CSS variable changes
+
+So it requires [a bit of a hack](https://stackoverflow.com/questions/57934680/listen-to-css-variable-change), but it's possible to listen for changes to CSS variables. We can use the `MutationObserver` to listen for changes to the `style` attribute of the element. This will fire whenever a CSS variable is changed. It will not work for a variable defined in a stylesheet. But you could observe a whole inline `<style>` tag with the same method. We also could listen to `getComputedStyle` it has bad pefromance, so it would have to be throttled
+
+```js
+// Must be set as an inline style, this would not work if it was defined in a stylesheet
+document.documentElement.style.setProperty("--var1", "my value");
+
+// The current value of the variable
+let value = "1";
+
+const styleObserver = new MutationObserver((mutations) => {
+  const currentValue = mutations[0].target.style.getPropertyValue("--var1");
+
+  if (currentValue !== value) {
+    // the variable has changed
+    console.log("style value changed", currentValue);
+    value = currentValue;
+  }
+});
+
+styleObserver.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ["style"],
+});
+```
+
+
+## Accessilibity
+One of the things I hope you noticed is that when we change colors it can get hard to read. 
+
+This is due to contrast. Which is the perceived difference in luminance between two colors.
+
+### Color perception is dependent on the surrounding context
+![Same Color with Two Different Apparent Shades](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_Colors_and_Luminance/yellowdotcheckershadow_dlyon.png)
+
+> Our contrast, lightness, and color perception is affected by the context of the nearby colors, and other features of a design or image. This makes predicting contrast challenging. It is clearly not as simple as the distance or ratio between two colors.
+
+So we'll be hamstrung if we rely just on math to calculate colors. Instead we need to use a combination of math and human judgement. 
+
+### What you should check for?
+1. Contast
+2. Color vision deficits
+
+#### Contrast
+This is most imporant for text. 
+
+The WCAG 2.0 standard defines a contrast ratio of 4.5:1 as the minimum for normal text and 3:1 for large text. For optimal reading it should be 7:1 or higher. You can use the [Contrast Checker](https://www.myndex.com/APCA/) to check your contrast and if it meets your use case. [You also can color contrst from your dev tools.](https://developer.chrome.com/docs/devtools/accessibility/contrast/)
+
+For other UI elements, they can be below 3:1, especially if there are other deliminating elements such as shadows, borders, or whitespace, but you should still check them.
+
+#### Color vision deficiencies
+There are several types of color vision deficits. [You can see your website simulated with various color deficits through the render panel.](https://developer.chrome.com/blog/new-in-devtools-83/#vision-deficiencies) Since some people lack a complete set of cones you should avoid "pure" colors, which can be nearly invisible for some users. 
+
+
+### A more automated approach
+Material theme builder uses a more automated approach. It uses a color palette and a set of rules to generate a theme. It uses smart names to make it easy to understand what the color is used for. It also uses a color contrast checker to make sure the colors are accessible.
+
+You can play around with their [theme builder](https://m3.material.io/theme-builder#/dynamic)
+
+And if you want to use their functions in your source code
+
+### Accessibility sources
+[MDN - Web Accessibility: Understanding Colors and Luminance](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_Colors_and_Luminance)
+[web.dev - Color and contrast accessibility](https://web.dev/color-and-contrast-accessibility/)
+
+## Future of CSS
+
+CSS variables are a powerful tool for building a theme system. They allow us to build a theme that is accessible and predictable. But they are not the end of the story. There are many other features that are coming to CSS that will allow us to build even more powerful themes.
+
+[CSS spec 5](https://www.w3.org/TR/css-color-5/) - Relative colors and color spaces
+
+Color-contrast
+- [MDN - color-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/color-contrast)
+- [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
 
 
 
+
+
+
+
+
+
+
+The ideal system would be able to automatically reconcile colors and use
 
 - What about accessibliity?
   - Motion
@@ -588,8 +664,7 @@ Showroom
   - Visual editing of elements that snap to a customizable grid and use smart efficient css with responsive design
   -
 
-
- If you're building a design system for mutiplatform applicationtion, you may want to consider using a tool like [Style Dictionary](https://amzn.github.io/style-dictionary/#/) to help you manage your variables.
+If you're building a design system for mutiplatform applicationtion, you may want to consider using a tool like [Style Dictionary](https://amzn.github.io/style-dictionary/#/) to help you manage your variables.
 
 # I Dream of Theming
 
@@ -604,7 +679,6 @@ Sites have added that today but how can they accomplish this. Well here are the 
 Their source code looks like this?
 
 With one class at the top level they can influence all of the colors. More than that if you look at how they do it, they change these special properties, called css properties.
-
 
 # So how do I use them?
 
@@ -667,10 +741,3 @@ How do I test css variables?
 - Depending on your unit test framework - vitest with happy dom loads styles but seems like best in headless mode doesn’t, you can try using window.getComputedstyles to help you
 
 What are some of the future things to look out for in theming?
-
-- css spec 5
-  - Relative colors
-  -
-  - Color-contrast -
-    [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
-  - LCH (and labLCH)
