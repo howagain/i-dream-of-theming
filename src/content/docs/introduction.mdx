@@ -1,0 +1,389 @@
+```css
+/* Welcome! We're about to have fun */
+:root {
+  --css-variable: hsl(0, 0%, 100%); /* Declare a value */
+  color: var(--css-variable); /* Use a value */
+}
+```
+
+Today, we’ll talk about theming using **CSS variables** (a.k.a CSS custom properties) and how to use them to build beautiful and easy to manage sites.
+
+By the end I hope you’ll have the knowledge of **how to build a dark theme** for every app you work on in the future.
+
+## Why use CSS variables
+
+- They are **semantic** so you don't have to remember random value.
+- They are **easy to change** and can be used to manage global values.
+- They are **dynamic** and can be changed with javascript.
+- They are **inheritable** and can be used to build a theme.
+- They are **scoped** and can be used to build a component.
+- They are **responsive** and can be used in media queries.
+- They are **pieceing** of the shaodwDOM easisly controlling web components
+
+### The power of CSS made dynamic
+
+While often the neglected child, css is powerful.
+
+Take a look at [CSS Zen Garden](http://www.csszengarden.com/) for an example of what css can do.
+
+With the same html and different css, you can create completely different sites.
+
+But imagine having to change between all of these sites. You'd esentially have to start from scratch each time
+
+So CSS is powerful, but it’s also hard to maintain.
+
+## What are CSS variables?
+
+### What properties should I write
+
+Look for properties with potential for reuse, complications, or that are hard to remember - Any themable properties that need to be consistent (colors, spacing, shadows, etc) - primary, secondary, pseudo states (hover, active, focus) - Spacing, color, z-index, - We’ll walk through the design system that fs-design have poured a lot of thought into - Note that they use the same color with different names because naming should reflect use, not value
+
+My goal is that your css will evolve from
+
+#### Basic
+```css
+button {
+  background-color: #1e90ff;
+}
+```
+
+#### 
+```css
+:root {
+  --blue: #1e90ff;
+}
+
+button {
+  background-color: var(--blue);
+}
+```
+
+to
+
+```css
+:root {
+  --light-primary: #1e90ff;
+  --primary-background: var(--primary, var(--light-primary));
+}
+
+.dark {
+  --primary: #629aeb;
+}
+
+button {
+  background: var(--primary-background);
+}
+```
+
+to
+
+```css
+:root {
+  --primary-hue: 210;
+  --primary-saturation: 100%;
+  --primary-lightness: 56%;
+
+  --primary-color: hsl(var(--primary-hue), var(--primary-saturation), var(--primary-lightness));
+
+  --primary-background: var(--primary-color);
+  --primary-text: hsl(var(--primary-hue), var(--primary-saturation), 5%));
+
+  --primary-hover: hsl(
+    var(--primary-hue),
+    var(--primary-saturation),
+    calc(var(--primary-lightness) + 10%)
+  );
+}
+
+.dark {
+	--primary-saturation: 60%;
+  --primary-lightness: 70%;
+}
+
+button {
+  background: var(--primary-background);
+	color: var(--primary-text);
+}
+
+button:hover {
+	background: var(--primary-hover);
+}
+```
+
+to
+
+```svelte
+<script>
+  const colorVariables = {}
+
+  const generateColorScheme = (hct:string) => {
+
+
+  }
+  const colorToLCH = (color:string) => {...}
+
+  const applyColorsToGlobal = (colorObject) => {...}
+
+</script>
+
+<button>
+	Click Me
+</button>
+
+<style>
+  global(*) {
+    --primary-background:
+  }
+
+  button {
+    background: var(--primary-background);
+    color: var(--primary-text);
+  }
+
+  button:hover {
+    background: var(--primary-hover);
+  }
+</style>
+```
+
+- What about accessibliity?
+  - Motion
+  - Contrast
+  - Giving the user dedicated hints
+- I’m building X project, how can I think through my color theme, I don’t need something so fancy
+  - Use semantic color variables rather than specific values, allows for easy tweaking later and it’s easy to understand
+  - Pick a name system, as always naming things is the hardest part of this
+- What naming system would you recommend?
+  - Start with the logical types of elements that you have on the page and connect them
+  - I’d recommend thinking of the following categories
+    - Text (color, font,
+    - Forms
+    - Interactive elements (buttons)
+    - Icons
+    - Shadows
+    - Borders
+    - Radius
+    - Neutrals
+  - The fewer colors the better
+  - I would not necessarily recommend using css variables for spacing/sizing unless there is a special use case calls for it as it can have unintended effects of squishing content, I would instead recommend a 4px grid system.
+- I’m using X system, how can I move fast and still build things
+  - Not every system is designed to be flexible, but if you can define custom values, use css variables with a fallback color
+- How does inheritance work
+  - Most specific selector
+    - Inline, Id, Class, element
+  - Which properties cascade down and which don’t
+    - Font/font colors
+  - Shadow dom
+    - Nothing but css properties pierce the veil
+- How do I make a good dark mode?
+  - Dark mode is designed to reduce eye strain
+  - Pick a neutral shade of grey and reduce the saturation of your colors.
+- What alternatives exist for theming?
+  - Tailwind has a “dark” mode that you can enable
+    - What if you want more than dark mode
+  - Passing conditional props to your components
+    - Clutters up your logic, especially if you don’t have a solution for prop drilling.
+  - Use something like material-UI’s theming system
+    - Context provider which a theme prop, but then tying into this requires css in js, which isn’t evil
+    [Theming - Material UI](https://mui.com/material-ui/customization/theming/)
+  - But none pierce the shadow dom
+
+Showroom
+
+- Best practices for using CSS variables
+  - Use consistent naming conventions for your variables
+    - Good naming is one of the hardest part of coding.
+      - Easy example, this function is get masked value but what it’s actually doing is taking a number like this and turning It into this. So a more accurate name is convert or usd currency format. Both are accurate but one is helpful for inputs and outputs.
+      - Name should give hints about use
+      - So rather than #f73424 you could use —primary-background-color
+      - The question to ask yourself is “how will someone who doesn’t understand this use this variable?”
+      - So in this diagram, if I have black, I actually might want to break that into two separate colors based on use, maybe one for text color and one for shadow color, even if they’re the same. Because variables are evaluated at runtime you can also create variables for base colors if you want to keep your code even more dry
+  - Organize your variables in a logical way, such as grouping them by element or component
+  - Use fallbacks for browser compatibility
+  - Avoid using !important, as it can make it harder to override the value later
+- How to debug and troubleshoot CSS variables
+  - Use browser developer tools to inspect the values of your variables
+  - Use a preprocessor like Sass or Less to automatically generate fallbacks for older browsers
+  - Use linting tools to catch errors in your CSS before they cause problems
+- How to use CSS variables in conjunction with preprocessors like Sass or Less
+  - Use preprocessors to define your variables and then reference them in your CSS
+  - Use preprocessors to perform calculations and operations on your CSS variables
+  - Use preprocessors to generate fallbacks for older browsers
+- How to use CSS variables with JavaScript
+  - Use JavaScript to dynamically update the value of your CSS variables
+  - Use JavaScript to perform calculations and operations on your CSS variables
+  - Use JavaScript to switch between different sets of CSS variables for different themes or layouts
+- How to use CSS variables with CSS Grid and Flexbox
+  - Use CSS variables to define the grid and flexbox layout properties, such as grid-template-columns and flex-wrap
+  - Use CSS variables to define the grid and flexbox spacing properties, such as grid-gap and justify-content
+  - Use CSS variables to define the grid and flexbox alignment properties, such as align-items and align-content
+- How to use CSS variables with media queries
+
+  - Use CSS variables to define the breakpoints for your media queries
+  - Use CSS variables to define the styles that should be applied at different breakpoints
+  - Use CSS variables to change the value of other CSS variables based on the screen size or device type.
+
+- ideal theming system
+  - Everything is based off of one color or 1 file
+    - Different themes can be applied with one toggle
+  - You have a designer that allows you to swap between colors or randomize other design aspects
+  - You can select from common layouts for your elements
+  - Visual editing of elements that snap to a customizable grid and use smart efficient css with responsive design
+  -
+
+# I Dream of Theming
+
+Ever night millions of people around the world blind themselves when they visit a website without a dark theme. But you can help by learning how to use css custom properties to build easy to manage themes. In doing so you can save not only your customers corneas but also the planet.
+
+In the past, if you wanted to do a dark theme, you’d have to go into every element of your website, open a color picker, and tweak it until it looked how you wanted it to.
+
+The ideal of this would be a simple toggle switch that just says “oh this is your light color site” and here’s the dark one.
+
+Sites have added that today but how can they accomplish this. Well here are the docs for Astro, notice their toggle switch. How does it work?
+
+Their source code looks like this?
+
+With one class at the top level they can influence all of the colors. More than that if you look at how they do it, they change these special properties, called css properties.
+
+# What are CSS custom properties?
+
+Css custom properties are a fully browser supported css spec that allows you to have runtime, computed properties.
+
+You call them like this:
+
+```css
+.button {
+  --blue: #209ffb;
+  background: var(--blue);
+}
+```
+
+You can use them anywhere that css is supported
+
+- in-line styles
+- Css-in-js
+- Even partial values
+
+# Gotchas (move these to the end of the how to use)
+
+## Sizes need to be self contained
+
+## You can’t use them for media queries
+
+[CSS native variables not working in media queries](https://stackoverflow.com/questions/40722882/css-native-variables-not-working-in-media-queries)
+
+```css
+:root {
+  --mobile-breakpoint: 642px;
+}
+
+@media (max-width: var(--mobile-breakpoint)) {
+}
+```
+
+> “how is this NOT a property value ?? It's max-width's property value! It should totally work!” -user9645
+
+In general this is because media queries are used to determine if a browser should evaluate a style at all (it is expensive) and when the [CSSOM](https://web.dev/critical-rendering-path-constructing-the-object-model/) is being constructed the browser doesn’t have access to these computed properties as their value depends on where they’re located in the dom. It’s getters vs setters. In the media query we’d have to get width of the document (which is a current proposal) to decide if it should be evaluated, vs in a normal property where it is being set by the parents in the CSSOM.
+
+### But you can use them in media queries!
+
+```css
+:root {
+  --main-color: blue;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --main-color: red;
+  }
+}
+
+.my-element {
+  color: var(--main-color);
+}
+```
+
+## You can’t use them to declare properties, only property values
+
+```css
+:root {
+  --my-property: color;
+  --my-value: blue;
+}
+
+.my-element {
+  /* this will not work, as --my-property is not a valid property */
+  var(--my-property): var(--my-value);
+}
+```
+
+Be careful of circular reference, it will default to it’s initial property
+
+# So how do I use them?
+
+Within 1 selector
+
+have to be declared inside a selector, usual root or html so they are global
+
+Inheritance
+
+- CSSOM
+
+You might start like this (css evolution 1)
+
+But I’ll let you know that this is okay to avoid magic values but we can improve this scheme by following some better naming schemes.
+
+css design system at C1
+
+## what is this?
+
+- a set of design tokens that both have named values corresponding to the magic value colors - option tokens
+- It also contains a set of design tokens which are named after their use
+
+Why are these good?
+
+- Because blue and white are great but what happens when you change to dark mode, and your white becomes this magic grey
+
+how do you do it?
+
+- Because css variables require names it’s important to have your names give hints of use rather than value.
+- So white becomes background-color
+- It also allows you to fix edge cases where your text needs more contrast in a specific theme of your website
+
+So what if you aren’t sure what to name your variable
+
+- better to be more specific than less specific
+
+# what if I want to make a dark theme
+
+- recommend to choose slightly less saturated colors
+
+# what if I want to make my colors relative?
+
+- Calc can be used in combination
+- you can do that with HSL easily if you need to stay in pure JS
+- Here’s how Astro does it
+- But hsl is not perceptually uniform
+
+# how do I know if my theme is accessible?
+
+- color perception depends on context (use image of orange in the shade)
+- use contrast rather than hue difference - that’s why hcl is good because luminance is coming soon
+- Also avoid “pure colors” as CVDs are due to color vision deficit
+  - Good check is to check color contrast of 3:1 for large text and 4.5:1 for small text and at least 7:1 for reading
+  - Then check with color vision deficits for the same rules
+- I was not able to find an easy rule for all of this, the best tool that I found for generating themes where accessibility is considered is material theme builder
+
+How do I test css variables?
+
+- cypress has support for css variables
+- Depending on your unit test framework - vitest with happy dom loads styles but seems like best in headless mode doesn’t, you can try using window.getComputedstyles to help you
+
+What are some of the future things to look out for in theming?
+
+- css spec 5
+  - Relative colors
+  -
+  - Color-contrast -
+  [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
+  - LCH (and labLCH)
