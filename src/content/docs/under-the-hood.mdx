@@ -1,0 +1,79 @@
+---
+title: 'CSS Variables - Under the Hood'
+---
+
+## How are CSS Variables constructed by the browser?
+
+To understand how CSS variables work, their power, and their limitations, it's important that we don't skip over how the CSS you write is actually parsed and interpreted by the browser.
+
+### CSS Object Model (CSSOM)
+
+![CSSOM and the DOM](/CSSOM-and-DOM.avif)
+[Constructing the Object Model](https://web.dev/critical-rendering-path-constructing-the-object-model/)
+
+When the browser starts parsing a CSS file, it converts the file into a series of tokens. **These tokens, which include selectors, properties, and values, are then organized into a tree-like structure called the CSS Object Model (CSSOM)**. The CSSOM is a parallel and analogous data structure to the Document Object Model (DOM) and is used to match elements in the DOM with the corresponding styles and apply them to the elements.
+
+### How are properties assigned in the CSSOM?
+
+![CSSOM Tree](/CSSOM-tree.jpeg)
+[Converting CSS to the CSSOM](https://www.youtube.com/watch?v=-CATiyw2-Ns)
+
+TODO: Insert Codepen to show the below especially overwriting css is possible
+
+The CSSOM tree is built by passing down properties from parent nodes to child nodes. These are inherited or computed properties. The browser also checks media queries and will only add a rule set to the CSSOM tree if it applies to the current viewport. Futhermore, it will ignore any rules that are not valid.
+
+Most importantly, **if the browser finds a duplicate selector, it will overwrite the previous rule set with the new one.** This is why CSS is render blocking, because the browser has to wait for the CSSOM to be complete before it can understand how to paint an element. It's also why **CSS variables cannot be evaluated until the CSSOM is complete** and leads to some of the quirks that we'll talk about next.
+
+### How are CSS Variables Evaluated?
+
+CSS variables are inherited by checking up the scope in the CSSOM. Since CSS can be redefined by later rules, **the browser does not know the value of CSS variables them when it is constructing the CSSOM. Therefore, they cannot be used in a way that would cause a recalculation the CSSOM**. Remember invalid rules are ignored by the browser. So if you try to use a CSS variable and it is invalid, the browser will default to it's initial styles.
+
+## CSS Varaible Gotchas
+
+Since variables only have a value after the CSSOM parsing is complete, there are some things that you can't do with them. There is a (proposal)[https://drafts.csswg.org/css-env-1/] to add in `env()` which would be similar to `var()` but not allow redefining the variable. This would allow for some of the use cases that we'll talk about below, but this is still in the draft stage.
+
+### You can’t use them to define a selector
+
+```css
+:root {
+  --my-property: color;
+  --my-value: blue;
+}
+
+.my-element {
+  /* this will not work, as --my-property is not a valid property */
+  var(--my-property): var(--my-value);
+}
+```
+
+This is because the browser doesn't know the value of the variable until it has parsed the entire CSSOM.
+
+## You can't use them to define a media query
+
+```css
+:root {
+  --mobile-breakpoint: 642px;
+}
+
+@media (max-width: var(--mobile-breakpoint)) {
+}
+```
+
+[CSS native variables not working in media queries](https://stackoverflow.com/questions/40722882/css-native-variables-not-working-in-media-queries)
+
+### You can't have a variable defined refrencing itself
+
+```css
+:root {
+  --my-property: red;
+}
+
+button {
+  /* This is invalid and would result in the browser using it's default styles */
+  --my-property: var(--another-property, var(--my-property));
+}
+```
+
+While `const myProperty = anotherProperty || myProperty;` is valid in JavaScript, the same pattern is not valid in CSS. Instead, if you wanted this fallback chain, you would want to define it like `--my-property: var(--another-property, red);`
+
+

@@ -1,0 +1,43 @@
+## Accessilibity
+
+One of the things I hope you noticed is that when we change colors it can get hard to read.
+
+This is due to contrast. Which is the perceived difference in luminance between two colors.
+
+### Color perception is dependent on the surrounding context
+
+![Same Color with Two Different Apparent Shades](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_Colors_and_Luminance/yellowdotcheckershadow_dlyon.png)
+
+> Our contrast, lightness, and color perception is affected by the context of the nearby colors, and other features of a design or image. This makes predicting contrast challenging. It is clearly not as simple as the distance or ratio between two colors.
+
+So we'll be hamstrung if we rely just on math to calculate colors. Instead we need to use a combination of math and human judgement.
+
+### What you should check for?
+
+1. Contast
+2. Color vision deficits
+
+#### Contrast
+
+This is most imporant for text.
+
+The WCAG 2.0 standard defines a contrast ratio of 4.5:1 as the minimum for normal text and 3:1 for large text. For optimal reading it should be 7:1 or higher. You can use the [Contrast Checker](https://www.myndex.com/APCA/) to check your contrast and if it meets your use case. [You also can color contrst from your dev tools.](https://developer.chrome.com/docs/devtools/accessibility/contrast/)
+
+For other UI elements, they can be below 3:1, especially if there are other deliminating elements such as shadows, borders, or whitespace, but you should still check them.
+
+#### Color vision deficiencies
+
+There are several types of color vision deficits. [You can see your website simulated with various color deficits through the render panel.](https://developer.chrome.com/blog/new-in-devtools-83/#vision-deficiencies) Since some people lack a complete set of cones you should avoid "pure" colors, which can be nearly invisible for some users.
+
+### A more automated approach
+
+Material theme builder uses a more automated approach. It uses a color palette and a set of rules to generate a theme. It uses smart names to make it easy to understand what the color is used for. It also uses a color contrast checker to make sure the colors are accessible.
+
+You can play around with their [theme builder](https://m3.material.io/theme-builder#/dynamic)
+
+And if you want to use their functions in your source code
+
+### Accessibility sources
+
+[MDN - Web Accessibility: Understanding Colors and Luminance](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_Colors_and_Luminance)
+[web.dev - Color and contrast accessibility](https://web.dev/color-and-contrast-accessibility/)

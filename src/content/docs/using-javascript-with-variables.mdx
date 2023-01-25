@@ -1,0 +1,90 @@
+---
+title: "The Superpowers of Javascript"
+---
+
+## Using JavaScript to Control CSS Variables
+
+<p
+  class="codepen"
+  data-height="300"
+  data-default-tab="css,result"
+  data-slug-hash="PoBewpQ"
+  data-editable="true"
+  data-user="howagain"
+  style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;"
+>
+  <span>
+    See the Pen
+    <a href="https://codepen.io/howagain/pen/PoBewpQ">
+      Updating CSS Variables with JavaScript
+    </a>
+    by howagain (<a href="https://codepen.io/howagain">@howagain</a>) on
+    <a href="https://codepen.io">CodePen</a>.
+  </span>
+</p>
+<script
+  client:idle
+  async
+  src="https://cpwebassets.codepen.io/assets/embed/ei.js"
+></script>
+
+The true superpowers come when you combine CSS and JS together. CSS variables are great at centralized control, JS excels at dynamic control and advanced math. We can use JS to build a theme based on a set of variables. This allows us to build a theme that is accessible and predictable.
+
+### How to access CSS variables in JS
+
+This will work only if the variable is defined on the element itself. Because remember the CSSOM gives elements a calculated style. This however only accesses the literal element's style.
+
+```js
+const value = element.style.getPropertyValue("--my-var");
+```
+
+So if we define the variables in a seperate stylesheet we need to access the computed style.
+
+If we want to access the computed value of the variable, we can use (`getComputedStyle`)[https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle]:
+
+```js
+const value = getComputedStyle(element).getPropertyValue("--my-var");
+```
+
+### How to set CSS variables in JS
+
+We can set CSS variables in JS by using `setProperty`:
+
+```js
+element.style.setProperty("--my-var", "red");
+```
+
+since we usually define our CSS variables on the root element, we can use `document.documentElement` to access it.
+
+```js
+document.documentElement.style.setProperty("--my-var", "red");
+```
+
+which would actually create a new inline style that would override the value of the variable, rather than changing the value of the variable itself. But the effect will still be the same due to the higher specificity.
+
+### How to listen for CSS variable changes
+
+So it requires [a bit of a hack](https://stackoverflow.com/questions/57934680/listen-to-css-variable-change), but it's possible to listen for changes to CSS variables. We can use the `MutationObserver` to listen for changes to the `style` attribute of the element. This will fire whenever a CSS variable is changed. It will not work for a variable defined in a stylesheet. But you could observe a whole inline `<style>` tag with the same method. We also could listen to `getComputedStyle` it has bad pefromance, so it would have to be throttled
+
+```js
+// Must be set as an inline style, this would not work if it was defined in a stylesheet
+document.documentElement.style.setProperty("--var1", "my value");
+
+// The current value of the variable
+let value = "1";
+
+const styleObserver = new MutationObserver((mutations) => {
+  const currentValue = mutations[0].target.style.getPropertyValue("--var1");
+
+  if (currentValue !== value) {
+    // the variable has changed
+    console.log("style value changed", currentValue);
+    value = currentValue;
+  }
+});
+
+styleObserver.observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ["style"],
+});
+```

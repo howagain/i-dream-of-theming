@@ -1,6 +1,7 @@
 ---
 import { getLanguageFromURL } from '../../languages';
 import { SIDEBAR } from '../../consts';
+import ThemeToggleButton from './ThemeToggleButton'
 
 type Props = {
 	currentPage: string;
@@ -15,6 +16,9 @@ const sidebar = SIDEBAR[langCode];
 ---
 
 <nav aria-labelledby="grid-left">
+	<div style="margin: 2rem 0; text-align: center;">
+		<ThemeToggleButton client:load />
+	</div>	
 	<ul class="nav-groups">
 		{
 			Object.entries(sidebar).map(([header, children]) => (

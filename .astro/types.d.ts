@@ -63,9 +63,44 @@ declare module 'astro:content' {
 
 	const entryMap: {
 		"docs": {
+"accessibility.mdx": {
+  id: "accessibility.mdx",
+  slug: "accessibility",
+  body: string,
+  collection: "docs",
+  data: InferEntrySchema<"docs">
+},
+"building-with-css-variables.mdx": {
+  id: "building-with-css-variables.mdx",
+  slug: "building-with-css-variables",
+  body: string,
+  collection: "docs",
+  data: InferEntrySchema<"docs">
+},
 "introduction.mdx": {
   id: "introduction.mdx",
   slug: "introduction",
+  body: string,
+  collection: "docs",
+  data: InferEntrySchema<"docs">
+},
+"under-the-hood.mdx": {
+  id: "under-the-hood.mdx",
+  slug: "under-the-hood",
+  body: string,
+  collection: "docs",
+  data: InferEntrySchema<"docs">
+},
+"using-javascript-with-variables.mdx": {
+  id: "using-javascript-with-variables.mdx",
+  slug: "using-javascript-with-variables",
+  body: string,
+  collection: "docs",
+  data: InferEntrySchema<"docs">
+},
+"whats-next.mdx": {
+  id: "whats-next.mdx",
+  slug: "whats-next",
   body: string,
   collection: "docs",
   data: InferEntrySchema<"docs">

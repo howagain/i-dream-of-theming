@@ -1,0 +1,30 @@
+---
+title: "What's Next"
+---
+
+## Future of CSS
+
+CSS variables are a powerful tool for building a theme system. They allow us to build a theme that is accessible and predictable. But they are not the end of the story. There are many other features that are coming to CSS that will allow us to build even more powerful themes.
+
+[CSS spec 5](https://www.w3.org/TR/css-color-5/) - Relative colors and color spaces
+
+You can get use JS to get similar functionality today by translating color spaces and doing relative manipulation with colorjs.io[https://colorjs.io/]
+
+Color-contrast
+
+- [MDN - color-contrast](https://developer.mozilla.org/en-US/docs/Web/CSS/color-contrast)
+- [New CSS color-contrast feature](https://youtu.be/B3_FfR7v5W4)
+
+## Takeaways
+
+- CSS variables are a powerful tool for building a theme system
+- They are computed at runtime, so they can be changed at any time
+- They can be used to build a theme that is accessible and predictable, with semantic names
+  - Use names with constant values and then wrap those into names describe how the value will be used
+- You can change CSS variables in JS with `element.style.setProperty` and you can get the current value with `getComputedStyle`
+- You can listen for changes to CSS variables with a MutationObserver
+- You need to use human judegement to make sure your theme is accessible
+  - Use a color contrast checker and color blindness to make sure the colors are accessible (3:1 for large text, 4.5 for small text, and 7:1 for reading)
+  - Don't use pure hues and check with a color vision deficiency simulator
+  - Stick to web standards when possible (error is red, success is green, etc)
+- There are many other features that are coming to CSS that will allow us to build even more powerful themes
