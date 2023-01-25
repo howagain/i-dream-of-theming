@@ -71,9 +71,20 @@ const lang = getLanguageFromURL(currentPage);
 		color: var(--theme-text);
 	}
 
+	@keyframes color-rotate {
+		from {
+			filter: hue-rotate(0deg);
+		}
+		to {
+			filter: hue-rotate(360deg);
+		}
+	}
+
 	.logo a:hover,
 	.logo a:focus {
 		color: var(--theme-text-accent);
+		animation: color-rotate 2s infinite ease-in-out;
+		transition: all 100ms ease-out;
 	}
 
 	.logo h1 {
