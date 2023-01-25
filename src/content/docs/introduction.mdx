@@ -32,22 +32,20 @@ But imagine having to change between all of these sites. You'd esentially have t
 
 So CSS is powerful, but it’s also hard to maintain.
 
-## What are CSS variables?
+But with CSS variables, we can apply a single class and completely change the look and feel of our site.
 
-### What properties should I write
+## What will we learn?
+My goal is that your css will evolve from this:
 
-Look for properties with potential for reuse, complications, or that are hard to remember - Any themable properties that need to be consistent (colors, spacing, shadows, etc) - primary, secondary, pseudo states (hover, active, focus) - Spacing, color, z-index, - We’ll walk through the design system that fs-design have poured a lot of thought into - Note that they use the same color with different names because naming should reflect use, not value
-
-My goal is that your css will evolve from
-
-#### Basic
+#### No Variables
 ```css
 button {
   background-color: #1e90ff;
 }
 ```
 
-#### 
+#### Basic
+```css
 ```css
 :root {
   --blue: #1e90ff;
@@ -58,7 +56,7 @@ button {
 }
 ```
 
-to
+#### Intermediate
 
 ```css
 :root {
@@ -75,7 +73,7 @@ button {
 }
 ```
 
-to
+#### Advanced
 
 ```css
 :root {
@@ -83,9 +81,8 @@ to
   --primary-saturation: 100%;
   --primary-lightness: 56%;
 
-  --primary-color: hsl(var(--primary-hue), var(--primary-saturation), var(--primary-lightness));
+  --primary-background: hsl(var(--primary-hue), var(--primary-saturation), var(--primary-lightness));
 
-  --primary-background: var(--primary-color);
   --primary-text: hsl(var(--primary-hue), var(--primary-saturation), 5%));
 
   --primary-hover: hsl(
@@ -110,29 +107,33 @@ button:hover {
 }
 ```
 
-to
+#### Superhero
 
 ```svelte
 <script>
   const colorVariables = {}
 
-  const generateColorScheme = (hct:string) => {
+  const generateColorScheme = (hct:string) => {...}
 
+  const checkForAccessibility = (colorArray:string[]) => {...}
 
-  }
   const colorToLCH = (color:string) => {...}
+
+  const colorToHSL = (color:string) => {...}
 
   const applyColorsToGlobal = (colorObject) => {...}
 
 </script>
 
-<button>
-	Click Me
-</button>
-
 <style>
   global(*) {
-    --primary-background:
+    --primary-base: 210%, 100%;
+    --primary-lightness: 56%;
+    --primary-background: hsl(var(--primary-base), var(--primary-lightness));
+  }
+
+  .dark {
+    --primary-lightness: 70%;
   }
 
   button {
@@ -145,6 +146,41 @@ to
   }
 </style>
 ```
+
+## How are CSS Variables constructed by the browser?
+
+To understand how CSS variables work, their power, and their limitations, it's important that we don't skip over how the CSS you write is actually parsed and interpreted by the browser.
+
+### CSS Object Model (CSSOM)
+
+While rendering the page the browser parses the HTML and constructs a tree-like structured called the Document Object Model (DOM). As it encounters a stylesheet it shoots off a request to download it and then parses it.
+
+When the browser starts parsing the CSS, it creates a set of rule sets, each one representing a group of selectors and properties. These rule sets are organized in a **tree-like structure, called the CSS Object Model (CSSOM), where each node represents a selector and each leaf node represents a property**. It is a parallel and analoguous data structure to the Document Object Model (DOM).
+
+When the browswer is constructing this tree, it will pass down properties from the parent nodes to the child nodes. These are computed or inherited properties. 
+
+The browser is also smart with media queries is will first check if the rule set applies to the current viewport. If it does, it will add the rule set to the CSSOM tree. If not, it will skip it. Additionally, the browser will ignore any rules that are not valid.
+
+**Since CSS can be overwritten by later rules, if it finds a duplicate selector, it will overwrite the previous rule set with the new one.** This overwriting is why CSS is render blocking and why CSS variables are have different behavior from what you would expect in javascript. Additionally, 
+
+After the full CSSOM is complete, browser then continues traversing the DOM, and for each element, it looks for the matching rule set in the CSSOM tree. When a match is found, the browser applies the properties to the element. If the element has a parent element, the browser also checks if the parent element has any inherited properties that should be applied to the element.
+
+So, the browser uses a two-pass algorithm, where it first constructs the CSSOM tree and then matches the elements in the DOM with the rule sets in the CSSOM tree. The first pass is the construction of the CSSOM tree and the second pass is the matching and applying of the styles.
+
+In other words, the browser first creates a map of all the CSS styles, and then it uses that map to apply the styles to the elements in the HTML. The browser uses inheritance to pass properties down to the selector nodes, then it traverses the tree to look for a match when it finds a node in the HTML.
+
+#### What about CSS variables?
+
+Since CSS variables can be redefined by later rules, the browser does not know the local scope when it is constructing the style sheet. Therefore it cannot do things that you might be used to in javascript such as check if the variable is undefined, converting it, or doing any other type of manipulation. Instead, it's based on this inheritance model. 
+
+CSS nodes have computed properties that are inherited from the parent node. So when it encounters a CSS variable the browser 
+
+
+
+
+
+
+
 
 - What about accessibliity?
   - Motion
